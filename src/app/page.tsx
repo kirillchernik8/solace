@@ -4,17 +4,34 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const [advocates, setAdvocates] = useState([]);
+  const [recordsPerPage, setRecordsPerPage] = useState(5);
+  const [pages, setPages] = useState(1);
+  const [page, setPage] = useState(1);
   const [filteredAdvocates, setFilteredAdvocates] = useState([]);
 
   useEffect(() => {
+    fetch("/api/pages").then((response) => {
+      response.json().then((jsonResponse) => {
+        setPages(Math.ceil(jsonResponse.data[0].count / recordsPerPage));
+      });
+    });
+  }, [page, recordsPerPage]);
+
+  useEffect(() => {
     console.log("fetching advocates...");
-    fetch("/api/advocates").then((response) => {
+    fetch("/api/advocates",  {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ page })
+    }).then((response) => {
       response.json().then((jsonResponse) => {
         setAdvocates(jsonResponse.data);
         setFilteredAdvocates(jsonResponse.data);
       });
     });
-  }, []);
+  }, [page]);
+
+
 
   const onChange = (e) => {
     const searchTerm = e.target.value.toLowerCase();
@@ -88,6 +105,11 @@ export default function Home() {
           })}
         </tbody>
       </table>
+      <div>
+        {page !== 1 && <div onClick={()=>setPage((prev) => prev-1)}>Prev</div>}
+        <div>{pages}</div>
+        {page < pages && <div onClick={()=>setPage((prev) => prev+1)}>NEXT</div>}
+      </div>
     </main>
   );
 }

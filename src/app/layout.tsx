@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 // local font import for better performance
-import localFont from 'next/font/local'
+import localFont from 'next/font/local';
 import "./globals.css";
 // reset css to ensure consistency across browsers
-import "./assets/styles/reset.css"
+import "./assets/styles/reset.css";
 
 // dyslexia-friendly font
 const lexend = localFont({
-  src: [ {  path: './assets/fonts/Lexend.woff2', }, ],
+  src: [ {  path: '../../public/fonts/Lexend.woff2', }, ],
 })
 
 export const metadata: Metadata = {
