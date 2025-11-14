@@ -22,14 +22,15 @@ export default function Home() {
     fetch("/api/advocates",  {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ page })
+        body: JSON.stringify({ page, recordsPerPage }),
     }).then((response) => {
       response.json().then((jsonResponse) => {
+        console.log("fetched advocates", jsonResponse);
         setAdvocates(jsonResponse.data);
         setFilteredAdvocates(jsonResponse.data);
       });
     });
-  }, [page]);
+  }, [page, recordsPerPage]);
 
 
 
@@ -109,6 +110,15 @@ export default function Home() {
         {page !== 1 && <div onClick={()=>setPage((prev) => prev-1)}>Prev</div>}
         <div>{pages}</div>
         {page < pages && <div onClick={()=>setPage((prev) => prev+1)}>NEXT</div>}
+      </div>
+
+      <div>
+        <label for="record-select">Records Per Page</label>
+        <select id="record-select" name="records" onChange={(e) => setRecordsPerPage(Number(e.target.value))} >
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="15">15</option>
+        </select>
       </div>
     </main>
   );
