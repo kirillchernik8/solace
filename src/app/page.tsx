@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function Home() {
   const [advocates, setAdvocates] = useState([]);
@@ -15,7 +15,7 @@ export default function Home() {
         setPages(Math.ceil(jsonResponse.data[0].count / recordsPerPage));
       });
     });
-  }, [page, recordsPerPage]);
+  }, [recordsPerPage]);
 
   useEffect(() => {
     console.log("fetching advocates...");
@@ -58,6 +58,11 @@ export default function Home() {
     console.log(advocates);
     setFilteredAdvocates(advocates);
   };
+
+  const updateRecordsPerPage = useCallback((e) => {
+    setPage(1)
+    setRecordsPerPage(Number(e.target.value))
+  }, [])
 
   return (
     <main style={{ margin: "24px" }}>
@@ -113,8 +118,8 @@ export default function Home() {
       </div>
 
       <div>
-        <label for="record-select">Records Per Page</label>
-        <select id="record-select" name="records" onChange={(e) => setRecordsPerPage(Number(e.target.value))} >
+        <label htmlFor="record-select">Records Per Page</label>
+        <select id="record-select" name="records" onChange={(e) => updateRecordsPerPage(e)} >
           <option value="5">5</option>
           <option value="10">10</option>
           <option value="15">15</option>
