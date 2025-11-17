@@ -1,3 +1,25 @@
-@tailwind base;
-@tailwind components;
+@import "tailwindcss/preflight";
 @tailwind utilities;
+
+@theme {
+  --color-green: #1d4339;
+  --color-black: #101010;
+  --color-gold: #d7a13b;
+  --color-gray: #e9e9e9;
+
+  --spacing-10: 512px;
+  --spacing-8: 256px;
+  --spacing-7: 128px;
+  --spacing-6: 64px;
+  --spacing-5: 32px;
+  --spacing-4: 24px;
+  --spacing-3: 16px;
+  --spacing-2: 8px;
+  --spacing-1: 4px;
+
+  --radius-8: 64px;
+  --radius-4: 24px;
+  --radius-3: 16px;
+  --radius-2: 8px;
+  --radius-1: 4px;
+}
