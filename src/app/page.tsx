@@ -11,7 +11,6 @@ export const mollieGlaston = localFont({
   src: [ {  path: '../../public/fonts/Mollie\ Glaston.woff2', }, ],
 })
 
-
 export default function Home() {
   const [advocates, setAdvocates] = useState<Array<Advocate>>([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState<Array<Advocate>>([]);
@@ -29,6 +28,7 @@ export default function Home() {
         setPages(Math.ceil(response.count / recordsPerPage));
         totalRecords.current = response.count
       } catch (error) {
+        // TODO: better error handling
         console.error("Error fetching pages:", error);
       }
     }
@@ -44,6 +44,7 @@ export default function Home() {
         setFilteredAdvocates(response.data);
       }
       catch (error) {
+        // TODO: better error handling
         console.error("Error fetching advocates:", error);
       }
     }
@@ -52,92 +53,111 @@ export default function Home() {
   }, [page, recordsPerPage]);
 
 
-
-  const onSearchInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onSearchInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
-    setSearchTerm(term);
+    setTimeout(async () => {
+      setSearchTerm(term);
 
-    const filteredAdvocates = await fetchHttp<{ searched: Array<Advocate>; count: number }>("/api/search", "POST", { searchTerm: term });
+      // TODO: may be a bug here?
+      const filteredAdvocates = await fetchHttp<{ searched: Array<Advocate>; count: number }>("/api/search", "POST", { searchTerm: term, page, recordsPerPage });
 
-    setPage(1);
-    setPages(Math.ceil(filteredAdvocates.count / recordsPerPage));
-    setFilteredAdvocates(filteredAdvocates.searched);
-  };
+      // TODO: reset page?
+      setPage(1);
+      setPages(Math.ceil(filteredAdvocates.count / recordsPerPage));
+      setFilteredAdvocates(filteredAdvocates.searched);
+    }, 100)
+  }, [page, recordsPerPage]);
 
   const onSearchReset = useCallback(() => {
+    // TODO: reset page?
     setPage(1)
-    setPages(Math.ceil(totalRecords.current / recordsPerPage));
     setSearchTerm("");
+    setPages(Math.ceil(totalRecords.current / recordsPerPage));
     setFilteredAdvocates(advocates);
   }, [advocates, recordsPerPage]);
 
   const onChangeRecordsPerPage = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    // TODO: reset page?
     setPage(1)
     setPages(Math.ceil(filteredAdvocates.length / recordsPerPage));
     setRecordsPerPage(Number(e.target.value))
-
   }, [filteredAdvocates, recordsPerPage])
 
   return (
-    <main style={{ margin: "24px" }} className="bg-(--color-white) ">
+    <main style={{ margin: "24px" }} className="bg-white">
       <h1 className={mollieGlaston.className}>Solace Advocates</h1>
-      <br />
-      <br />
       <form>
           <div>
-            <div className="flex">
-              <input value={searchTerm} type="text" className="bg-white border border-gray rounded-md block w-full py-8 focus:outline-none placeholder:text-body" placeholder="Search" onChange={onSearchInputChange}  required />
-              <button type="button" className="text-black bg-white border border-transparent leading-5 rounded-full focus:outline-none [&_img]:invert" onClick={onSearchReset} >
-                <Image src={UndoIcon} className="bg-gray" alt="Reset" width={16} height={16} />
+            <div className="relative flex items-center w-full">
+              <input value={searchTerm} type="text" className="bg-white border border-gray rounded-2 block w-full py-2 px-1 focus:outline-none placeholder:text-body"
+                placeholder="Search"
+                onChange={onSearchInputChange}
+                required
+              />
+              <button
+                type="button"
+                className="cursor-pointer text-black bg-white border border-transparent rounded focus:outline-none absolute right-2 top-2"
+                onClick={onSearchReset}
+              >
+                <Image src={UndoIcon} alt="Reset" width={16} height={16} />
               </button>
             </div>
           </div>
       </form>
-      <br />
-      <br />
-      <div className="relative overflow-x-auto bg-white shadow-xs rounded-base border border-gray">
-        <table className="w-full text-sm text-left rtl:text-right text-body">
-          <thead className="text-sm text-body bg-neutral-secondary-soft border-b rounded-base border-gray">
+      <div className="relative overflow-x-auto bg-white shadow-xs border border-gray mt-4 rounded-2">
+        <table className="w-full text-sm text-center">
+          <thead className="text-sm border-gray">
             <tr>
-              <th className="px-1 py-3 font-medium">First Name</th>
-              <th className="px-1 py-3 font-medium">Last Name</th>
-              <th className="px-1 py-3 font-medium">City</th>
-              <th className="px-1 py-3 font-medium">Degree</th>
-              <th className="px-1 py-3 font-medium">Specialties</th>
-              <th className="px-1 py-3 font-medium">Years of Experience</th>
-              <th className="px-1 py-3 font-medium">Phone Number</th>
+              {/* TODO: class duplicates */}
+              <th className="px-1 py-3 h-6 w-6 font-medium">First Name</th>
+              <th className="px-1 py-3 h-6 w-6 font-medium">Last Name</th>
+              <th className="px-1 py-3 h-6 w-6 font-medium">City</th>
+              <th className="px-1 py-3 h-6 w-6 font-medium">Degree</th>
+              <th className="px-1 py-3 h-6 w-6 font-medium">Specialties</th>
+              <th className="px-1 py-3 h-6 w-6 font-medium">Years of Experience</th>
+              <th className="px-1 py-3 h-6 w-6 font-medium">Phone Number</th>
             </tr>
           </thead>
           <tbody>
+            {/* TODO: no results found */}
             {filteredAdvocates.map((advocate) => {
               return (
                 <tr key={advocate.id} className="odd:bg-gray px-8">
-                  <th scope="row" className="px-1 py-3 font-medium text-heading whitespace-nowrap">{advocate.firstName}</th>
-                  <td className="px-1 py-3">{advocate.lastName}</td>
-                  <td className="px-1 py-3">{advocate.city}</td>
-                  <td className="px-1 py-3">{advocate.degree}</td>
-                  <td className="px-1 py-3">
-                    {advocate.specialties.map((s) => (
-                      <div key={s}>{s}</div>
-                    ))}
+                  <td className="px-1 py-3 overflow-hidden whitespace-nowrap h-6 w-6">{advocate.firstName}</td>
+                  <td className="px-1 py-3 overflow-hidden whitespace-nowrap truncate w-6 h-6">{advocate.lastName}</td>
+                  <td className="px-1 py-3 overflow-hidden whitespace-nowrap truncate w-6 h-6">{advocate.city}</td>
+                  <td className="px-1 py-3 overflow-hidden whitespace-nowrap truncate w-6 h-6">{advocate.degree}</td>
+                  <td className="px-1 py-3 overflow-hidden w-8 h-6">
+                    <div className="line-clamp-1" title={advocate.specialties.join(", ")}>{advocate.specialties.join(", ")}</div>
                   </td>
-                  <td className="px-1 py-3">{advocate.yearsOfExperience}</td>
-                  <td className="px-1 py-3">{advocate.phoneNumber}</td>
+                  <td className="px-1 py-3 overflow-hidden w-6 h-6">{advocate.yearsOfExperience}</td>
+                  <td className="px-1 py-3 overflow-hidden w-6 h-6">{advocate.phoneNumber}</td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
-      <div className="flex justify-center items-center mt-4 gap-2">
-        {page !== 1 && <div onClick={()=>setPage((prev) => prev-1)}>previous</div>}
-        <div className="flex">
-          <div>{page}</div>
-          {pages > 1 && <div>...{pages}</div>}
+      <div className="flex justify-center items-center mt-4 gap-2 w-full">
+        {/* TODO: styling */}
+        <div className="flex justify-between items-center gap-2">
+          {page !== 1 && <button className="cursor-pointer" onClick={()=>setPage((prev) => prev-1)}>previous</button>}
+          {[...Array(pages)].map((_, idx) => {
+              const pageNum = idx + 1;
+              return (
+                <button
+                  key={pageNum}
+                  className={`px-2 py-1 border rounded-2 ${pageNum === page ? "bg-green text-gray" : ""}`}
+                  onClick={() => setPage(pageNum)}
+                >
+                  {pageNum}
+                </button>
+              );
+          })}
+          {page < pages && <button className="cursor-pointer" onClick={()=>setPage((prev) => prev+1)}>next</button>}
         </div>
-        {page < pages && <div onClick={()=>setPage((prev) => prev+1)}>next</div>}
       </div>
-      <div>
+      <div className="mt-4 flex items-center justify-end gap-2">
         <label htmlFor="record-select">Records Per Page</label>
         <select id="record-select" name="records" onChange={onChangeRecordsPerPage} >
           <option value="5">5</option>
